@@ -4,10 +4,12 @@ import { Col, Container, Row } from 'react-bootstrap'
 import Nav from '../components/Nav'
 import Slater from '../components/Slater'
 import speaker1 from '../speaker1.svg'
+import {useState} from 'react';
 
 
 
 export default function Home() {
+  const [initialValue1, setInitialValue1] = useState(initialValue);
   return (
     <div>
       <Head>
@@ -22,67 +24,99 @@ export default function Home() {
 
         </Row>
         <Row className='my-3'>
-          <Slater />
+          <Slater initialValue={initialValue1} onChange={value => setInitialValue1(value)} />
         </Row>
+        <div style={{display:'flex'}}>
         <div style={{width:'60%',backgroundColor:'#F4F5F7',marginLeft:'5%',borderRadius: '10px 10px 0px 0px'}} className='mb-5'>
          
-            <h6 className='mx-3 py-1'>Box 1</h6>
-  
-          <div className='py-1 d-inline-flex fluid px-3' style={{height:'39px'}}>
-            <div>
-            <Image src={speaker1} className='rounded-circle'  alt=""/>
-            </div>
-            <div>
-            <h6 className='my-auto mx-2 text-center py-2'>Speaker 1</h6>
-            </div>
-            <div>
-            <p className='px-auto mx-2 py-1' style={{opacity:'0.6',fontWeight:'400'}}>09:45</p>
-            </div>
-          </div>
-          <Row>
-            <p className='px-5'>
-            There are many variations of Lorem Ipsum but the majority have suffered alteration There are many variation passa dont look even slightly believable. If you are going to use a passage.
-            </p>
-          </Row>
-        
-       
+         <h6 className='mx-3 py-1'>Box 1</h6>
 
        <div className='py-1 d-inline-flex fluid px-3' style={{height:'39px'}}>
          <div>
          <Image src={speaker1} className='rounded-circle'  alt=""/>
          </div>
          <div>
-         <h6 className='my-auto mx-2 text-center py-2'>Speaker 2</h6>
+         <h6 className='my-auto mx-2 text-center py-2'>Speaker 1</h6>
          </div>
          <div>
-         <p className='px-auto mx-2 py-1' style={{opacity:'0.6',fontWeight:'400'}}>06:35</p>
+         <p className='px-auto mx-2 py-1' style={{opacity:'0.6',fontWeight:'400'}}>09:45</p>
          </div>
        </div>
        <Row>
          <p className='px-5'>
-         There are many variations of Lorem Ipsum but the majority have suffered alteration There are many variationpassa
-dont look even slightly believable. If you are going to use a passage.
+         There are many variations of Lorem Ipsum but the majority have suffered alteration There are many variation passa dont look even slightly believable. If you are going to use a passage.
          </p>
        </Row>
+     
+    
 
-       <div className='py-1 d-inline-flex fluid px-3' style={{height:'39px'}}>
-         <div>
-         <Image src={speaker1} className='rounded-circle'  alt=""/>
-         </div>
-         <div>
-         <h6 className='my-auto mx-2 text-center py-2'>Speaker 3</h6>
-         </div>
-         <div>
-         <p className='px-auto mx-2 py-1' style={{opacity:'0.6',fontWeight:'400'}}>04:30</p>
-         </div>
-       </div>
-       <Row>
-         <p className='px-5'>
-         There are many variations of Lorem Ipsum but the majority have suffered alteration There are many variationpassa
+    <div className='py-1 d-inline-flex fluid px-3' style={{height:'39px'}}>
+      <div>
+      <Image src={speaker1} className='rounded-circle'  alt=""/>
+      </div>
+      <div>
+      <h6 className='my-auto mx-2 text-center py-2'>Speaker 2</h6>
+      </div>
+      <div>
+      <p className='px-auto mx-2 py-1' style={{opacity:'0.6',fontWeight:'400'}}>06:35</p>
+      </div>
+    </div>
+    <Row>
+      <p className='px-5'>
+      There are many variations of Lorem Ipsum but the majority have suffered alteration There are many variationpassa
 dont look even slightly believable. If you are going to use a passage.
-         </p>
-       </Row>
+      </p>
+    </Row>
+
+    <div className='py-1 d-inline-flex fluid px-3' style={{height:'39px'}}>
+      <div>
+      <Image src={speaker1} className='rounded-circle'  alt=""/>
+      </div>
+      <div>
+      <h6 className='my-auto mx-2 text-center py-2'>Speaker 3</h6>
+      </div>
+      <div>
+      <p className='px-auto mx-2 py-1' style={{opacity:'0.6',fontWeight:'400'}}>04:30</p>
+      </div>
+    </div>
+    <Row>
+      <p className='px-5'>
+      There are many variations of Lorem Ipsum but the majority have suffered alteration There are many variationpassa
+dont look even slightly believable. If you are going to use a passage.
+      </p>
+    </Row>
+</div>
+<div  className='mx-5'>
+  <div className='my-5'>
+  {
+          initialValue1.map((r, i) => {
+
+            for (let j = 0; j < initialValue1[i].children.length; j++) {
+              console.log(initialValue1);
+              if (initialValue1[i].children[j].blue) {
+                return <p style={{backgroundColor:'#4aaeff'}}><b>{initialValue1[i].children[j].blue} </b>: {initialValue1[i].children[j].text}</p>
+              }
+           
+              if (initialValue1[i].children[j].red) {
+                return <p style={{backgroundColor:'#f09a92'}}><b>{initialValue1[i].children[j].red} </b>: {initialValue1[i].children[j].text}</p>
+              }
+              if (initialValue1[i].children[j].yellow) {
+                return <p style={{backgroundColor:'#f5ff70'}}><b>{initialValue1[i].children[j].yellow} </b>: {initialValue1[i].children[j].text}</p>
+              }  
+              
+            }
+          }
+
+          )
+
+        }
   </div>
+
+
+
+</div>
+        </div>
+       
         </Container>
 
 
@@ -91,3 +125,40 @@ dont look even slightly believable. If you are going to use a passage.
     </div>
   )
 }
+
+const initialValue = [
+  {
+    type: "paragraph",
+    children: [
+      { text: "This is editable " },
+      { text: "rich", bold: true},
+      { text: " text, ", blue: 'blue Tag' },
+      { text: "much", italic: true},
+      { text: " better than a " },
+      { text: "<textarea>", code: true },
+      { text: "!" }
+    ]
+  },
+  {
+    type: "paragraph",
+    children: [
+      {
+        text:
+          "Since it's rich text, you can do things like turn a selection of text "
+      },
+      { text: "bold", bold: true },
+      {
+        text:
+          ", or add a semantically rendered block quote in the middle of the page, like this:"
+      }
+    ]
+  },
+  {
+    type: "block-quote",
+    children: [{ text: "A wise quote." }]
+  },
+  {
+    type: "paragraph",
+    children: [{ text: "Try it out for yourself!" }]
+  }
+];

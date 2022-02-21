@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import isHotkey from "is-hotkey";
 import { Editable, withReact, useSlate, Slate } from "slate-react";
 import { Editor, Transforms, createEditor } from "slate";
@@ -7,6 +7,9 @@ import format_bold from '../format_bold.svg'
 import format_italic from '../format_italic.svg'
 import format_underlined from '../format_underlined.svg'
 import code from '../Vector (6).svg'
+import red from '../circle (1) (2).png'
+import blue from '../circle (2) (2).png'
+import yellow from '../circle (3) (2).png'
 import looks_one from '../Vector (7).svg'
 import looks_two from '../Vector (8).svg'
 import format_quote from '../Vector (11).svg'
@@ -16,6 +19,7 @@ import { Button, Toolbar } from "./SlaterComponent.js";
 import Image from "next/image";
 import { insertLink } from "./Link/Linkutil";
 import Link from "./Link/Link";
+import { Row, Col } from 'react-bootstrap'
 
 const HOTKEYS = {
   "mod+b": "bold",
@@ -26,44 +30,59 @@ const HOTKEYS = {
 
 const LIST_TYPES = ["numbered-list", "bulleted-list"];
 
-const Slater = () => {
-  const [value, setValue] = useState(initialValue);
+
+
+const Slater = (props) => {
+  const [value, setValue] = useState(props.initialValue);
   const renderElement = useCallback(props => <Element {...props} />, []);
   const renderLeaf = useCallback(props => <Leaf {...props} />, []);
   const editor = useMemo(() => withHistory(withReact(createEditor())), []);
 
   return (
-    <Slate editor={editor} value={value} onChange={value => setValue(value)}>
-      <Toolbar>
+    <>
+      <Slate editor={editor} value={value} onChange={value => {setValue(value);props.onChange(value)}} >
+        <Toolbar>
 
-        <MarkButton format="bold" icon={format_bold} ></MarkButton>
-        <MarkButton format="italic" icon={format_italic} />
-        <MarkButton format="underline" icon={format_underlined} />
-        <MarkButton format="code" icon={code} />
-       <BlockButton format="left-align" icon={looks_one}/>
-        <BlockButton format="center-align" icon={looks_two} />
-        <BlockButton format="link" icon={format_quote} />
-     
-        <BlockButton format="bulleted-list" icon={format_list_bulleted} />
-        <BlockButton format="numbered-list" icon={format_list_numbered} />
-      </Toolbar>
-      <Editable
-        renderElement={renderElement}
-        renderLeaf={renderLeaf}
-        placeholder="Enter some rich text…"
-        spellCheck
-        autoFocus
-        onKeyDown={event => {
-          for (const hotkey in HOTKEYS) {
-            if (isHotkey(hotkey, event)) {
-              event.preventDefault();
-              const mark = HOTKEYS[hotkey];
-              toggleMark(editor, mark);
+          <MarkButton format="bold" icon={format_bold} ></MarkButton>
+          <MarkButton format="italic" icon={format_italic} />
+          <MarkButton format="underline" icon={format_underlined} />
+          <MarkButton format="code" icon={code} />
+          <MarkButton format="red" icon={red}>Red</MarkButton>
+          <MarkButton format="blue" icon={blue}>Blue</MarkButton>
+          <MarkButton format="yellow" icon={yellow}>Yellow</MarkButton>
+          <BlockButton format="left-align" icon={looks_one} />
+          <BlockButton format="center-align" icon={looks_two} />
+          <BlockButton format="link" icon={format_quote} />
+
+          <BlockButton format="bulleted-list" icon={format_list_bulleted} />
+          <BlockButton format="numbered-list" icon={format_list_numbered} />
+        </Toolbar>
+        <Editable
+          renderElement={renderElement}
+          renderLeaf={renderLeaf}
+          placeholder="Enter some rich text…"
+          spellCheck
+          autoFocus
+          onKeyDown={event => {
+            for (const hotkey in HOTKEYS) {
+              if (isHotkey(hotkey, event)) {
+                event.preventDefault();
+                const mark = HOTKEYS[hotkey];
+                toggleMark(editor, mark);
+              }
             }
-          }
-        }}
-      />
-    </Slate>
+          }}
+        />
+      </Slate>
+      <Row>
+      
+
+
+{console.log(value)}
+
+      </Row>
+
+    </>
   );
 };
 
@@ -86,13 +105,25 @@ const toggleBlock = (editor, format) => {
   }
 };
 
-const toggleMark = (editor, format) => {
+const toggleMark = (editor, format, tagName) => {
   const isActive = isMarkActive(editor, format);
 
   if (isActive) {
-    Editor.removeMark(editor, format);
-  } else {
-    Editor.addMark(editor, format, true);
+   
+    if(tagName){
+      Editor.removeMark(editor, {format, tagName}, true);
+    }
+    else{
+      Editor.removeMark(editor, format);
+    }
+  } else {   
+    if(tagName){
+      Editor.addMark(editor, format, tagName, true);
+
+    }
+    else{
+      Editor.addMark(editor, format, true);
+    }
   }
 };
 
@@ -128,12 +159,12 @@ const Element = ({ attributes, children, element }) => {
     case "numbered-list":
       return <ol {...attributes}>{children}</ol>;
     case "left-align":
-      return <div style={{textAlign:'left'}} {...attributes}>{children}</div>;
+      return <div style={{ textAlign: 'left' }} {...attributes}>{children}</div>;
     // case "link":
     //   return <Link {...attributes} {...element} {...children} />;
 
     case "center-align":
-      return <div style={{textAlign:'center'}} {...attributes}>{children}</div>;
+      return <div style={{ textAlign: 'center' }} {...attributes}>{children}</div>;
     default:
       return <p {...attributes}>{children}</p>;
   }
@@ -154,7 +185,19 @@ const Leaf = ({ attributes, children, leaf }) => {
 
   if (leaf.underline) {
     children = <u>{children}</u>;
+
   }
+  if (leaf.red) {
+    children = <span style={{ backgroundColor: '#f09a92' }}>{children}</span>;
+  }
+  if (leaf.blue) {
+    children = <span style={{ backgroundColor: '#4aaeff' }}>{children}</span>;
+  }
+  if (leaf.yellow) {
+    children = <span style={{ backgroundColor: '#f5ff70' }}>{children}</span>;
+  }
+
+
 
   return <span {...attributes}>{children}</span>;
 };
@@ -169,13 +212,32 @@ const BlockButton = ({ format, icon }) => {
         toggleBlock(editor, format);
       }}
     >
-    <Image src={icon}></Image>
+      <Image src={icon}></Image>
     </Button>
   );
 };
 
 const MarkButton = ({ format, icon }) => {
   const editor = useSlate();
+if(format === 'blue' || format === 'red' || format === 'yellow'){
+  return (
+    <Button
+    active={isMarkActive(editor, format)}
+    onMouseDown={event => {
+      event.preventDefault();
+      let tagName = prompt('Enter a tag Name');
+      if (tagName !== ''){
+        toggleMark(editor, format, tagName);
+      
+      }
+
+    }}
+  >
+    <Image src={icon} ></Image>
+  </Button>
+    
+  )
+}
 
   return (
     <Button
@@ -185,46 +247,11 @@ const MarkButton = ({ format, icon }) => {
         toggleMark(editor, format);
       }}
     >
-  <Image src={icon}></Image>
-    </Button> 
+      <Image src={icon}></Image>
+    </Button>
   );
 };
 
-const initialValue = [
-  {
-    type: "paragraph",
-    children: [
-      { text: "This is editable " },
-      { text: "rich", bold: true },
-      { text: " text, " },
-      { text: "much", italic: true },
-      { text: " better than a " },
-      { text: "<textarea>", code: true },
-      { text: "!" }
-    ]
-  },
-  {
-    type: "paragraph",
-    children: [
-      {
-        text:
-          "Since it's rich text, you can do things like turn a selection of text "
-      },
-      { text: "bold", bold: true },
-      {
-        text:
-          ", or add a semantically rendered block quote in the middle of the page, like this:"
-      }
-    ]
-  },
-  {
-    type: "block-quote",
-    children: [{ text: "A wise quote." }]
-  },
-  {
-    type: "paragraph",
-    children: [{ text: "Try it out for yourself!" }]
-  }
-];
+
 
 export default Slater;
